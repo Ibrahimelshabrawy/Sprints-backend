@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoleEnum {
+  ADMIN
+  STUDENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+}
+
+enum ChatType {
+  GENERAL
+  TRACK
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      RoleEnum  @default(STUDENT)
+  trackId   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  track     Track?    @relation(fields: [trackId], references: [id], onDelete: SetNull)
+  tasks     Task[]    @relation("UserTasks")
+  messages  Message[]
+}
+
+model Sprint {
+  id          String    @id @default(uuid())
+  name        String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tracks      Track[]
+  chats       Chat[]
+}
+
+model Track {
+  id          String    @id @default(uuid())
+  name        String
+  description String
+  sprintId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  sprint      Sprint    @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  users       User[]
+  tasks       Task[]
+  chats       Chat[]
+}
+
+model Task {
+  id              String      @id @default(uuid())
+  title           String
+  description     String
+  status          TaskStatus  @default(TODO)
+  trackId         String
+  assigneeId      String?
+  submissionNotes String?
+  submissionUrl   String?
+  score           Int?
+  feedback        String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  track           Track       @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  assignee        User?       @relation("UserTasks", fields: [assigneeId], references: [id], onDelete: SetNull)
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  type      ChatType
+  sprintId  String
+  trackId   String?
+  createdAt DateTime  @default(now())
+
+  sprint    Sprint    @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+  track     Track?    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  messages  Message[]
+}
+
+model Message {
+  id        String    @id @default(uuid())
+  content   String
+  senderId  String
+  chatId    String
+  createdAt DateTime  @default(now())
+
+  sender    User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
