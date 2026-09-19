@@ -8,6 +8,8 @@ import { TrackModule } from './modules/track/track.module';
 import { TaskModule } from './modules/task/task.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { UserModule } from './modules/user/user.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -23,5 +25,8 @@ import { UserModule } from './modules/user/user.module';
     ChatModule,
     UserModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
+

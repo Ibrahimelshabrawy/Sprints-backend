@@ -38,6 +38,15 @@ describe('Sprint Management System E2E Workflow', () => {
     await app.close();
   });
 
+  // 0. DEFAULT ROUTE
+  describe('Default Route', () => {
+    it('GET / returns 200 and default greeting message', async () => {
+      const res = await request(app.getHttpServer()).get('/').expect(200);
+
+      expect(res.body.data).toBe('Hello World!');
+    });
+  });
+
   // 1. AUTHENTICATION
   describe('Authentication', () => {
     it('Admin can login and receives valid JWT token', async () => {
